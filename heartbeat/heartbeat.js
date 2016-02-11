@@ -1,6 +1,9 @@
 var WebSocketServer = require('websocket').server;
 var http = require('http');
-var lasttime, predefinedTime;
+var sleep = require('sleep');
+
+var sleep_time=1000000;
+var increment_factor = 500000; 
  
 var server = http.createServer(function(request, response) {
     console.log((new Date()) + ' Received request for ' + request.url);
@@ -13,34 +16,21 @@ server.listen(8080, function() {
  
 wsServer = new WebSocketServer({
     httpServer: server,
-    // You should not use autoAcceptConnections for production 
-    // applications, as it defeats all standard cross-origin protection 
-    // facilities built into the protocol and the browser.  You should 
-    // *always* verify the connection's origin and decide whether or not 
-    // to accept it. 
     autoAcceptConnections: false
 });
  
-function originIsAllowed(origin) {
-  // put logic here to detect whether the specified origin is allowed. 
-  return true;
-}
- 
 wsServer.on('request', function(request) {
-    if (!originIsAllowed(request.origin)) {
-      // Make sure we only accept requests from an allowed origin 
-      request.reject();
-      console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
-      return;
-    }
-    
     var connection = request.accept('echo-protocol', request.origin);
         
-    setInterval(function() {
-        connection.sendUTF('alive');
-
-        
-    }, 3000);
+    function send_heartbeat() {
+        sleep.usleep(sleep_time);
+        console.log('I am alive dude and this is my heartbeat:'+sleep_time.toString()+' microseconds');
+        connection.sendUTF('I am alive dude and this is my heartbeat:'+sleep_time.toString()+' microseconds');
+        sleep_time+=increment_factor
+        send_heartbeat()
+    }
+    send_heartbeat()
+    
     connection.on('close', function(reasonCode, description) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
     });

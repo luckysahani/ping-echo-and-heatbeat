@@ -1,7 +1,7 @@
 var WebSocketClient = require('websocket').client;
  
 var client = new WebSocketClient();
-var lasttime;
+var lasttime , curr_time;
 var predefinedTime = 3000;
  
 client.on('connectFailed', function(error) {
@@ -19,27 +19,16 @@ client.on('connect', function(connection) {
         console.log('Oops, It seems that the connection to the daemon has been lost.');
     });
     connection.on('message', function(message) {
-        var date = new Date();
-        var curr_time = date.getTime();
-        if(curr_time-lasttime<=3000){
-            if (message.type === 'utf8') {
-                console.log(message);
-            }
-            lasttime=curr_time;
+        curr_time = (new Date()).getTime();
+        if(curr_time - lasttime < predefinedTime){
+            console.log('Received Message: ' + message.utf8Data);
+            console.log("Still alive !!!\n");
+            lasttime = curr_time;
         }
         else{
-            console.log('server faulty');
+            console.log("Didn't got the heartbeat within pre-defined time .... Fault detected o.O");
         }
     });
-    
-    function sendNumber() {
-        if (connection.connected) {
-            var number = Math.round(Math.random() * 0xFFFFFF);
-            connection.sendUTF(number.toString());
-            setTimeout(sendNumber, 1000);
-        }
-    }
-    sendNumber();
 });
  
-client.connect('ws://localhost:8080/', 'echo-protocol');
+client.connect('ws://172.16.133.128:8080:8080/', 'echo-protocol');

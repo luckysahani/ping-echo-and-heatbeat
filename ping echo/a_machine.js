@@ -39,4 +39,4 @@ client.on('connect', function(connection) {
     ping_to_machine_b();
 });
  
-client.connect('ws://localhost:8080/', 'echo-protocol');
+client.connect('ws://172.16.133.128:8080/', 'echo-protocol');
