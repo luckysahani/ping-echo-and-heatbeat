@@ -31,4 +31,4 @@ client.on('connect', function(connection) {
     });
 });
  
-client.connect('ws://172.16.133.128:8080:8080/', 'echo-protocol');
+client.connect('ws://172.16.133.128:8080/', 'echo-protocol');
